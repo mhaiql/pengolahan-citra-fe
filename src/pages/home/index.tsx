@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
+import { Link } from "react-router-dom";
 
 interface IHomeProps {}
 
@@ -26,29 +27,27 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
   const selectedFile = acceptedFiles[0];
   console.log("selected file:", selectedFile);
 
-  // const uploadImage = async () => {
-  //     if (!selectedFile) return;
+  const uploadImage = async () => {
+    if (!selectedFile) return;
 
-  //     const formData = new FormData();
-  //     formData.append("file", selectedFile);
-  //     formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string);
-  //     formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY as string);
+    const formData = new FormData();
+    formData.append("image", selectedFile);
 
-  //     try {
-  //       const response = await fetch(
-  //         `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-  //         {
-  //           method: "POST",
-  //           body: formData,
-  //         }
-  //       );
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/grayscale`, {
+        method: "POST",
+        body: formData,
+      });
 
-  //       const data = await response.json();
-  //       setUploadedURL(data.url);
-  //     } catch (error) {
-  //       console.error("Error uploading image:", error);
-  //     }
-  //   };
+      const data = await response.blob();
+      const imageUrl = URL.createObjectURL(data);
+      console.log("data", data);
+      // setUploadedURL(data.url);
+      setDataURL(imageUrl);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center p-4 border border-dashed rounded-lg min-h-screen">
@@ -62,12 +61,11 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
             {uploadedURL ? (
               <span className="text-green-500">Uploaded!</span>
             ) : (
-              <button
-                // onClick={uploadImage}
-                className="px-16 py-2 bg-black text-white rounded hover:bg-slate-600 duration-200"
-              >
-                Upload
-              </button>
+              <Link to="/filter" state={{ dataURL }}>
+                <button className="px-16 py-2 bg-black text-white rounded hover:bg-slate-600 duration-200">
+                  Submit Image
+                </button>
+              </Link>
             )}
             <button
               onClick={() => setDataURL(null)}
@@ -78,10 +76,10 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center ">
           <div
             {...getRootProps()}
-            className="w-96 p-6 text-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer"
+            className="w-96 h-64 flex justify-center items-center p-6 text-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer"
           >
             <input {...getInputProps()} />
             {isDragActive ? (
