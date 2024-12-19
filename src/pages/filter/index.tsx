@@ -1,128 +1,144 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FaAngleLeft } from "react-icons/fa6";
 
-interface IFilterPageProps {}
-
-const FilterPage: React.FunctionComponent<IFilterPageProps> = () => {
+const FilterPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { dataURL } = location.state || {};
+  const image = location.state?.image;
+  const [loading, setLoading] = useState(false);
+  const [currentFilter, setCurrentFilter] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [filteredImage, setFilteredImage] = useState<string | null>(null);
 
-  const [selectedFilter, setSelectedFilter] = React.useState<string | null>(
-    null
-  );
-
-  const [filteredImageURL, setFilteredImageURL] = React.useState<string | null>(
-    null
-  );
-
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
-  const handleBackToHome = () => {
-    navigate("/", { state: { reset: true } });
+  const handleBack = () => {
+    navigate("/");
   };
 
-  const handleSelectFilter = (filter: string) => {
-    console.log("Selected filter:", filter);
-    setSelectedFilter(filter);
-    setFilteredImageURL(null);
-  };
-
-  const handleApplyFilter = async () => {
-    if (!selectedFilter || !dataURL) return;
-    console.log("Applied filter:", selectedFilter);
-    setIsLoading(true);
+  const handleApplyFilter = async (filterName: string) => {
+    setLoading(true);
+    setError(null);
+    setCurrentFilter(filterName);
+    console.log("Selected Filter:", filterName);
 
     try {
-      const blob = await fetch(dataURL).then((res) => res.blob());
       const formData = new FormData();
-      formData.append("image", blob, "uploaded-image.jpg");
+      const blob = await fetch(image).then((res) => res.blob());
+      formData.append("image", blob, "uploaded_image.jpg");
 
-      const response = await fetch(`http://127.0.0.1:5000/${selectedFilter}`, {
-        method: "POST",
-        body: formData,
-      });
+      let endpoint = "";
+      if (filterName === "Grayscale") {
+        endpoint = "grayscale";
+      } else if (filterName === "Blur Edges") {
+        endpoint = "blur_edges";
+      } else if (filterName === "Resize") {
+        endpoint = "resize";
+        formData.append("percentage", "50");
+      }
 
-      if (!response.ok) throw new Error("Failed to apply filter");
+      const response = await fetch(
+        `https://citra-be-python.vercel.app/${endpoint}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      const data = await response.blob();
-      const imageUrl = URL.createObjectURL(data);
-      setFilteredImageURL(imageUrl);
-    } catch (error) {
-      console.log("Error applying filter:", error);
+      if (!response.ok) {
+        throw new Error("Failed to apply filter. Please try again.");
+      }
+
+      const blobResult = await response.blob();
+      const resultUrl = URL.createObjectURL(blobResult);
+
+      setFilteredImage(resultUrl); // Simpan gambar yang telah difilter
+    } catch (err: any) {
+      setError(err.message || "An error occurred.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+      setCurrentFilter(null);
     }
   };
 
+  const handleSubmit = () => {
+    if (filteredImage) {
+      navigate("/output", { state: { image: filteredImage } });
+    } else {
+      setError("No filter applied yet. Please apply a filter first.");
+    }
+  };
+
+  if (!image) {
+    navigate("/");
+    return null;
+  }
+
   return (
-    <div className="flex h-screen">
-      <div className="w-1/2  bg-red-100">
-        {filteredImageURL ? (
+    <div className="flex h-screen bg-gray-100">
+      <div className="flex-1 bg-gray-300 flex items-center justify-center">
+        <div className="w-3/4 h-3/4 bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
           <img
-            src={filteredImageURL}
-            alt="Filtered Preview"
-            className="w-full h-full object-cover"
+            src={filteredImage || image}
+            alt="Preview"
+            className="w-full h-full object-contain rounded-lg"
           />
-        ) : dataURL ? (
-          <img
-            src={dataURL}
-            alt="Filtered Preview"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <p className="text-center">no image selected!</p>
-        )}
+        </div>
       </div>
-      <div className="w-1/2 bg-white py-10 px-8">
-        <p
-          onClick={handleBackToHome}
-          className="pb-10 hover:underline cursor-pointer"
-        >
-          Back
-        </p>
-        <div className="flex flex-col items-center">
-          <div>
-            <p className="font-semibold text-4xl pb-8">
-              Select your desired filter!
-            </p>
-          </div>
-          <div className="flex flex-col px-10 space-y-6">
-            <button
-              onClick={() => handleSelectFilter("grayscale")}
-              className={`w-80 py-4 rounded-xl duration-200 text-white ${
-                selectedFilter === "grayscale"
-                  ? "bg-slate-600"
-                  : "bg-gray-500 hover:bg-slate-600"
-              }`}
-            >
-              Grayscale
-            </button>
-            <button
-              onClick={() => handleSelectFilter("blur_edges")}
-              className={`w-80 py-4 rounded-xl duration-200 text-white ${
-                selectedFilter === "blur_edges"
-                  ? "bg-slate-600"
-                  : "bg-gray-500 hover:bg-slate-600"
-              }`}
-            >
-              Blur Edges
-            </button>
-          </div>
-          <div className="pt-20">
-            <button
-              onClick={handleApplyFilter}
-              disabled={!selectedFilter}
-              className={`w-80 py-4 rounded-xl text-white duration-200 ${
-                selectedFilter
-                  ? "bg-black hover:bg-slate-600"
-                  : "bg-gray-300 cursor-not-allowed"
-              }`}
-            >
-              Apply Filter
-            </button>
+
+      <div className="w-96 p-6 bg-white border-l border-gray-200 shadow-md flex flex-col justify-between">
+        <div>
+          <button
+            onClick={handleBack}
+            className="flex items-center text-gray-500 hover:text-black hover:underline mb-4"
+          >
+            <span className="ml-2 flex items-center space-x-1">
+              <FaAngleLeft className="h-5" />
+              <p className="text-lg font-semibold">Back</p>
+            </span>
+          </button>
+
+          <h2 className="text-xl font-bold mb-6 text-center">Select Filters</h2>
+
+          <div className="space-y-4">
+            {["Grayscale", "Blur Edges", "Resize"].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => handleApplyFilter(filter)}
+                disabled={loading && currentFilter === filter}
+                className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                  loading && currentFilter === filter
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
+                style={{
+                  boxShadow: "4px 4px 0px black",
+                  position: "relative",
+                }}
+              >
+                {loading && currentFilter === filter ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  filter
+                )}
+              </button>
+            ))}
           </div>
         </div>
+
+        <button
+          onClick={handleSubmit}
+          disabled={!filteredImage}
+          className={`w-full py-3 mt-6 bg-gray-200 text-black border border-black rounded-lg hover:bg-gray-300 ${
+            !filteredImage ? "cursor-not-allowed opacity-50" : ""
+          }`}
+          style={{ boxShadow: "4px 4px 0px black" }}
+        >
+          Submit
+        </button>
+
+        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
       </div>
     </div>
   );
