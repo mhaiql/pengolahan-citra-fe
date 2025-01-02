@@ -7,8 +7,10 @@ const FilterPage: React.FC = () => {
   const image = location.state?.image;
   const [loading, setLoading] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<string | null>(null);
+  const [isResizeActive, setIsResizeActive] = useState(false); // State untuk melacak filter Resize
   const [error, setError] = useState<string | null>(null);
   const [filteredImage, setFilteredImage] = useState<string | null>(null);
+  const [resizePercentage, setResizePercentage] = useState(50); // Default nilai slider
 
   const handleBack = () => {
     navigate("/");
@@ -31,7 +33,7 @@ const FilterPage: React.FC = () => {
         endpoint = "blur_edges";
       } else if (filterName === "Resize") {
         endpoint = "resize";
-        formData.append("percentage", "50"); // Tambahkan persentase resize
+        formData.append("percentage", resizePercentage.toString()); // Gunakan nilai slider
       }
 
       const response = await fetch(`https://citra-be-python.vercel.app/${endpoint}`, {
@@ -51,8 +53,15 @@ const FilterPage: React.FC = () => {
       setError(err.message || "An error occurred.");
     } finally {
       setLoading(false);
-      setCurrentFilter(null);
+      if (filterName !== "Resize") {
+        setIsResizeActive(false); // Slider tertutup untuk filter lain
+      }
     }
+  };
+
+  const handleResizeClick = () => {
+    setIsResizeActive(true); // Aktifkan slider Resize
+    setCurrentFilter("Resize");
   };
 
   const handleSubmit = () => {
@@ -93,30 +102,95 @@ const FilterPage: React.FC = () => {
           <h2 className="text-xl font-bold mb-6 text-center">Select Filters</h2>
 
           <div className="space-y-4">
-            {["Grayscale", "Blur Edges", "Resize"].map((filter) => (
-              <button
-                key={filter}
-                onClick={() => handleApplyFilter(filter)}
-                disabled={loading && currentFilter === filter}
-                className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
-                  loading && currentFilter === filter
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : ""
-                }`}
-                style={{
-                  boxShadow: "4px 4px 0px black",
-                  position: "relative",
-                }}
-              >
-                {loading && currentFilter === filter ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
-                  </div>
-                ) : (
-                  filter
-                )}
-              </button>
-            ))}
+            {/* Tombol Grayscale */}
+            <button
+              onClick={() => handleApplyFilter("Grayscale")}
+              disabled={loading && currentFilter === "Grayscale"}
+              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                loading && currentFilter === "Grayscale"
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : ""
+              }`}
+              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+            >
+              {loading && currentFilter === "Grayscale" ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                "Grayscale"
+              )}
+            </button>
+
+            {/* Tombol Blur Edges */}
+            <button
+              onClick={() => handleApplyFilter("Blur Edges")}
+              disabled={loading && currentFilter === "Blur Edges"}
+              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                loading && currentFilter === "Blur Edges"
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : ""
+              }`}
+              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+            >
+              {loading && currentFilter === "Blur Edges" ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                "Blur Edges"
+              )}
+            </button>
+
+            {/* Tombol Resize */}
+            <button
+              onClick={handleResizeClick}
+              disabled={loading && currentFilter === "Resize"}
+              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                loading && currentFilter === "Resize"
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : ""
+              }`}
+              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+            >
+              {loading && currentFilter === "Resize" ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                "Resize"
+              )}
+            </button>
+
+            {/* Slider Resize */}
+            {isResizeActive && (
+              <div className="mt-4">
+                <label htmlFor="resize-slider" className="block text-gray-700">
+                  Resize Percentage: {resizePercentage}%
+                </label>
+                <input
+                  id="resize-slider"
+                  type="range"
+                  min="1"
+                  max="99" 
+                  value={resizePercentage}
+                  onChange={(e) => setResizePercentage(Number(e.target.value))}
+                  className="w-full mt-2"
+                />
+                <button
+                  onClick={() => handleApplyFilter("Resize")}
+                  className="w-full py-2 mt-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  {loading && currentFilter === "Resize" ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-t-white border-gray-400 rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    "Apply Resize"
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
