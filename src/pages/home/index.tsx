@@ -15,6 +15,7 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
       reader.onload = () => {
         const binaryStr = reader.result as string;
         setDataURL(binaryStr);
+        if (binaryStr) navigate("/filter", { state: { image: binaryStr } });
       };
       reader.readAsDataURL(file);
     });
@@ -22,10 +23,10 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  const handleUpload = () => {
-    // Navigasi ke halaman Filter dan mengirim data gambar
-    if (dataURL) navigate("/filter", { state: { image: dataURL } });
-  };
+  // const handleUpload = () => {
+  //   // Navigasi ke halaman Filter dan mengirim data gambar
+  //   if (dataURL) navigate("/filter", { state: { image: dataURL } });
+  // };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -53,7 +54,7 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
             alt="Preview"
             className="w-80 h-80 object-cover border border-gray-300 rounded-lg shadow-md"
           />
-          <div className="flex space-x-4 mt-4">
+          {/* <div className="flex space-x-4 mt-4">
             <button
               onClick={handleUpload}
               className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 duration-200"
@@ -67,7 +68,7 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
             >
               Cancel
             </button>
-          </div>
+          </div> */}
         </div>
       )}
     </div>
