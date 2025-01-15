@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { FiImage } from "react-icons/fi";
 
-const FilterPage: React.FC = () => { 
+const FilterPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [image, setImage] = useState(location.state?.image);
@@ -30,21 +30,21 @@ const FilterPage: React.FC = () => {
     }
   };
 
-   const onDrop = React.useCallback((acceptedFiles: File[]) => {
-      acceptedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const binaryStr = reader.result as string;
-          setImage(binaryStr);
-          setFilteredImage(null);
-          setIsShowModal(false);
-          setSizeAfter(0)
-        };
-        reader.readAsDataURL(file);
-      });
-    }, []);
+  const onDrop = React.useCallback((acceptedFiles: File[]) => {
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const binaryStr = reader.result as string;
+        setImage(binaryStr);
+        setFilteredImage(null);
+        setIsShowModal(false);
+        setSizeAfter(0);
+      };
+      reader.readAsDataURL(file);
+    });
+  }, []);
 
-   const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleApplyFilter = async (filterName: string) => {
     setLoading(true);
@@ -53,7 +53,7 @@ const FilterPage: React.FC = () => {
 
     try {
       const formData = new FormData();
-      const blob = await fetch(image).then((res) => res.blob()); 
+      const blob = await fetch(image).then((res) => res.blob());
       formData.append("image", blob, "uploaded_image.jpg");
 
       let endpoint = "";
@@ -78,10 +78,9 @@ const FilterPage: React.FC = () => {
         throw new Error("Failed to apply filter. Please try again.");
       }
 
-      
       const blobResult = await response.blob();
       const resultUrl = URL.createObjectURL(blobResult);
-      if(filterName === "Resize"){
+      if (filterName === "Resize") {
         setSizeBefore(blob.size);
         setSizeAfter(blobResult.size);
         console.log(blobResult.size);
@@ -101,7 +100,7 @@ const FilterPage: React.FC = () => {
   const handleResizeClick = () => {
     setIsResizeActive(true); // Aktifkan slider Resize
     setCurrentFilter("Resize");
-    setSizeAfter(0)
+    setSizeAfter(0);
   };
 
   const handleSubmit = () => {
@@ -121,8 +120,12 @@ const FilterPage: React.FC = () => {
     <div className="flex h-screen bg-gray-100">
       {isShowModal ? (
         <div className="fixed w-screen h-screen bg-gray-300 bg-opacity-70 z-10 flex justify-center items-center">
-          <div className="fixed w-screen h-screen z-10 flex justify-center items-center" onClick={()=>setIsShowModal(false)}></div>
-          <div {...getRootProps()}
+          <div
+            className="fixed w-screen h-screen z-10 flex justify-center items-center"
+            onClick={() => setIsShowModal(false)}
+          ></div>
+          <div
+            {...getRootProps()}
             className="bg-white w-2/4 h-2/4 rounded-2xl flex flex-col justify-center items-center z-40 border border-black"
           >
             <input {...getInputProps()} />
@@ -133,23 +136,18 @@ const FilterPage: React.FC = () => {
             <p className="text-sm text-gray-500 mt-1">Or Just Drop It Here!</p>
           </div>
         </div>
-        
       ) : null}
       <div className="flex-1 bg-gray-300 flex items-center justify-center flex-col">
-        <div className="w-3/4 h-fit bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
+        <div className="w-full h-full bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
           <img
             src={filteredImage || image}
             alt="Preview"
             className="w-full h-full object-contain rounded-lg"
           />
         </div>
-          <p 
-            className="mt-3 cursor-pointer" 
-            onClick={()=> setIsShowModal(true)}
-          ><span>&#8634;</span> <span>Upload Again</span></p>
       </div>
 
-      <div className="w-96 p-6 bg-white border-l border-gray-200 shadow-md flex flex-col justify-between">
+      <div className="w-1/4 p-6 bg-white border-l border-gray-200 shadow-md flex flex-col justify-between">
         <div>
           <button
             onClick={handleBack}
@@ -253,28 +251,36 @@ const FilterPage: React.FC = () => {
             )}
 
             {/* info resize */}
-            {
-              (sizeAfter && isResizeActive) ? (
-                <div className="border border-black rounded-xl p-3">
-                  Document Size
-                  <p><span className="text-gray-600">From :</span> <strong>{(sizeBefore/1024).toFixed(2)} KB</strong> </p>
-                  <p><span className="text-gray-600">To :</span> <strong>{(sizeAfter/1024).toFixed(2)} KB</strong></p>
-                </div>
-              ) : null
-            }
+            {sizeAfter && isResizeActive ? (
+              <div className="border border-black rounded-xl p-3">
+                Document Size
+                <p>
+                  <span className="text-gray-600">From :</span>{" "}
+                  <strong>{(sizeBefore / 1024).toFixed(2)} KB</strong>{" "}
+                </p>
+                <p>
+                  <span className="text-gray-600">To :</span>{" "}
+                  <strong>{(sizeAfter / 1024).toFixed(2)} KB</strong>
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
-
-        <button
-          onClick={handleDownload}
-          disabled={!filteredImage}
-          className={`w-full py-3 mt-6 bg-gray-200 text-black border border-black rounded-lg hover:bg-gray-300 ${
-            !filteredImage ? "cursor-not-allowed opacity-50" : ""
-          }`}
-          style={{ boxShadow: "4px 4px 0px black" }}
-        >
-          Download
-        </button>
+        <div className="flex flex-col justify-center items-center space-y-4">
+          <button
+            onClick={handleDownload}
+            disabled={!filteredImage}
+            className={`w-full py-3 mt-6 bg-gray-200 text-black border border-black rounded-lg hover:bg-gray-300 ${
+              !filteredImage ? "cursor-not-allowed opacity-50" : ""
+            }`}
+            style={{ boxShadow: "4px 4px 0px black" }}
+          >
+            Download
+          </button>
+          <p className="cursor-pointer" onClick={() => setIsShowModal(true)}>
+            <span>&#8634;</span> <span>Upload Again</span>
+          </p>
+        </div>
 
         {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
       </div>
