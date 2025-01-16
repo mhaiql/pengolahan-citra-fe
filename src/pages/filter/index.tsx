@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { FiImage } from "react-icons/fi";
+import { Popover } from "antd";
+import { MdInfoOutline } from "react-icons/md";
 
 const FilterPage: React.FC = () => {
   const location = useLocation();
@@ -116,6 +118,41 @@ const FilterPage: React.FC = () => {
     return null;
   }
 
+  const contentGrayscale = (
+    <div className="w-64 h-full">
+      <p>
+        Grayscale adalah teknik yang mengubah gambar berwarna menjadi
+        hitam-putih dengan berbagai gradasi abu-abu. Proses ini bekerja dengan
+        mengambil rata-rata dari warna merah, hijau, dan biru (RGB) untuk
+        menghasilkan warna abu-abu yang sesuai.
+      </p>
+    </div>
+  );
+
+  const contentBlur = (
+    <div className="w-64 h-full">
+      <p>
+        Blur adalah fitur yang membuat gambar tampak lebih halus atau kabur
+        dengan cara mengurangi detail yang tajam. Ini dilakukan dengan
+        memanipulasi piksel-piksel agar terlihat lebih rata.
+      </p>
+    </div>
+  );
+
+  const contentResize = (
+    <div className="w-64 h-full">
+      <p>
+        Filter resize adalah mengubah ukuran gambar resize bekerja dengan
+        mengubah dimensi gambar, baik itu memperbesar atau memperkecil. Saat
+        gambar diperbesar, piksel yang ada akan dihitung ulang dan diperluas
+        menggunakan interpolasi untuk menjaga gambar tetap tajam dan tidak
+        pecah. Sementara ketika gambar diperkecil, beberapa piksel akan digabung
+        untuk menghasilkan gambar yang lebih kecil tanpa kehilangan terlalu
+        banyak detail.
+      </p>
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-gray-100">
       {isShowModal ? (
@@ -161,64 +198,85 @@ const FilterPage: React.FC = () => {
 
           <div className="space-y-4">
             {/* Tombol Grayscale */}
-            <button
-              onClick={() => handleApplyFilter("Grayscale")}
-              disabled={loading && currentFilter === "Grayscale"}
-              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
-                loading && currentFilter === "Grayscale"
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : ""
-              }`}
-              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
-            >
-              {loading && currentFilter === "Grayscale" ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                "Grayscale"
-              )}
-            </button>
+            <div className="flex items-center space-x-4">
+              <div className="cursor-pointer">
+                <Popover content={contentGrayscale} trigger="hover">
+                  <MdInfoOutline className="text-2xl text-gray-500" />
+                </Popover>
+              </div>
+              <button
+                onClick={() => handleApplyFilter("Grayscale")}
+                disabled={loading && currentFilter === "Grayscale"}
+                className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                  loading && currentFilter === "Grayscale"
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
+                style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+              >
+                {loading && currentFilter === "Grayscale" ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  "Grayscale"
+                )}
+              </button>
+            </div>
 
             {/* Tombol Blur Edges */}
-            <button
-              onClick={() => handleApplyFilter("Blur Edges")}
-              disabled={loading && currentFilter === "Blur Edges"}
-              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
-                loading && currentFilter === "Blur Edges"
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : ""
-              }`}
-              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
-            >
-              {loading && currentFilter === "Blur Edges" ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                "Blur Edges"
-              )}
-            </button>
+            <div className="flex items-center space-x-4">
+              <div className="cursor-pointer">
+                <Popover content={contentBlur} trigger="hover">
+                  <MdInfoOutline className="text-2xl text-gray-500" />
+                </Popover>
+              </div>
+              <button
+                onClick={() => handleApplyFilter("Blur Edges")}
+                disabled={loading && currentFilter === "Blur Edges"}
+                className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                  loading && currentFilter === "Blur Edges"
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
+                style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+              >
+                {loading && currentFilter === "Blur Edges" ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  "Blur Edges"
+                )}
+              </button>
+            </div>
 
             {/* Tombol Resize */}
-            <button
-              onClick={handleResizeClick}
-              disabled={loading && currentFilter === "Resize"}
-              className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
-                loading && currentFilter === "Resize"
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : ""
-              }`}
-              style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
-            >
-              {loading && currentFilter === "Resize" ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                "Resize"
-              )}
-            </button>
+            <div className="flex items-center space-x-4">
+              <div className="cursor-pointer">
+                <Popover content={contentResize} trigger="hover">
+                  <MdInfoOutline className="text-2xl text-gray-500" />
+                </Popover>
+              </div>
+              <button
+                onClick={handleResizeClick}
+                disabled={loading && currentFilter === "Resize"}
+                className={`w-full py-3 border border-black rounded-lg shadow-md hover:bg-gray-100 ${
+                  loading && currentFilter === "Resize"
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
+                style={{ boxShadow: "4px 4px 0px black", position: "relative" }}
+              >
+                {loading && currentFilter === "Resize" ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  "Resize"
+                )}
+              </button>
+            </div>
 
             {/* Slider Resize */}
             {isResizeActive && (
