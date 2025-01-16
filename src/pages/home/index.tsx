@@ -2,6 +2,7 @@ import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { FiImage } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import bg from "../../assets/img/bg3.jpg";
 
 interface IHomeProps {}
 
@@ -29,7 +30,14 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
   // };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-white"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <h1 className="text-3xl font-bold mb-8 text-center">
         IMAGE FILTER PROJECT
       </h1>
