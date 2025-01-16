@@ -27,7 +27,7 @@ const FilterPage: React.FC = () => {
     if (filteredImage) {
       const link = document.createElement("a");
       link.href = filteredImage;
-      link.download = "output-image.png";
+      link.download = "output-image.jpg";
       link.click();
     }
   };
@@ -88,6 +88,8 @@ const FilterPage: React.FC = () => {
         console.log(blobResult.size);
       }
 
+      console.log("blob image:", blobResult);
+
       setFilteredImage(resultUrl); // Simpan gambar yang telah difilter
     } catch (err: any) {
       setError(err.message || "An error occurred.");
@@ -130,11 +132,16 @@ const FilterPage: React.FC = () => {
   );
 
   const contentBlur = (
-    <div className="w-64 h-full">
+    <div className="w-96 h-full">
       <p>
-        Blur adalah fitur yang membuat gambar tampak lebih halus atau kabur
-        dengan cara mengurangi detail yang tajam. Ini dilakukan dengan
-        memanipulasi piksel-piksel agar terlihat lebih rata.
+        Gaussian blur adalah teknik dalam pengolahan citra yang digunakan untuk
+        menghaluskan gambar dengan cara mengurangi tingkat detail dan meratakan
+        perbedaan intensitas antar piksel. Teknik ini bekerja dengan menerapkan
+        filter Gaussian, yang menggunakan fungsi Gaussian untuk memberikan bobot
+        pada piksel di sekitarnya berdasarkan jaraknya dari piksel pusat. Piksel
+        yang lebih dekat mendapatkan bobot lebih besar, sedangkan piksel yang
+        lebih jauh mendapatkan bobot lebih kecil, sehingga menghasilkan efek
+        kabur yang alami.
       </p>
     </div>
   );
@@ -246,7 +253,7 @@ const FilterPage: React.FC = () => {
                     <div className="w-5 h-5 border-2 border-t-black border-gray-400 rounded-full animate-spin"></div>
                   </div>
                 ) : (
-                  "Blur Edges"
+                  "Gaussian Blur"
                 )}
               </button>
             </div>

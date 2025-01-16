@@ -19,6 +19,7 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
         if (binaryStr) navigate("/filter", { state: { image: binaryStr } });
       };
       reader.readAsDataURL(file);
+      console.log("file:", file);
     });
   }, []);
 
@@ -46,7 +47,7 @@ const Home: React.FunctionComponent<IHomeProps> = () => {
         <div
           {...getRootProps()}
           className="flex flex-col items-center justify-center w-96 h-24 border border-black rounded-lg shadow-md cursor-pointer hover:shadow-lg"
-          style={{ boxShadow: "4px 4px 0px black" }} // Bayangan tebal
+          style={{ boxShadow: "4px 4px 0px black" }}
         >
           <input {...getInputProps()} />
           <div className="flex items-center space-x-2">
